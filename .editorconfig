@@ -25,3 +25,8 @@ indent_size = 2
 
 [*.md]
 trim_trailing_whitespace = false
+
+# Arquivos que rodam em ambiente Linux exigem LF.
+[*.{sh,yml,yaml}]
+end_of_line = lf
+indent_size = 2

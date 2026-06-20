@@ -1,0 +1,15 @@
+# Normalização de fim de linha consistente entre Windows/Linux/macOS.
+* text=auto
+
+# Scripts executados dentro de containers Linux PRECISAM de LF,
+# caso contrário falham com "bad interpreter" / "no such file".
+*.sh text eol=lf
+
+# Arquivos de infra que rodam em ambiente Linux.
+Dockerfile text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# Scripts Windows mantêm CRLF.
+*.cmd text eol=crlf
+*.bat text eol=crlf
