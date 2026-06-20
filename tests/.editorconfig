@@ -1,0 +1,7 @@
+# Sobrepõe o .editorconfig raiz APENAS para os projetos de teste.
+# (herda todo o resto do arquivo da raiz, que tem root = true)
+
+[*.cs]
+# Nomes de teste seguem a convenção Metodo_Cenario_ResultadoEsperado.
+# Os underscores são intencionais e legíveis — CA1707 não se aplica aqui.
+dotnet_diagnostic.CA1707.severity = none
