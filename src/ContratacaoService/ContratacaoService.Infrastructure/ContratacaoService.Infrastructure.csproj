@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\ContratacaoService.Application\ContratacaoService.Application.csproj" />
+    <ProjectReference Include="..\ContratacaoService.Domain\ContratacaoService.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

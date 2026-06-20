@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\PropostaService.Domain\PropostaService.Domain.csproj" />
+  </ItemGroup>
+
+</Project>
