@@ -260,6 +260,7 @@ Documentadas no README (seção "Decisões"):
 4. **Outbox + Inbox** — entrega confiável; justificado mesmo sendo bônus.
 5. **Result pattern para regra de negócio; exception só para invariante** — controle de fluxo limpo.
 6. **YAGNI conscientes**: sem CQRS com read models separados, sem event sourcing, sem API Gateway — fora do escopo "simples".
+7. **Segurança — postura e escopo**: como demonstração, *rate limiting* nativo (`Microsoft.AspNetCore.RateLimiting`) na borda da API — par *inbound* da resiliência *outbound* (Polly). Já presentes: isolamento de dados por usuário/banco, segredos via variáveis de ambiente e `ProblemDetails` que não vaza detalhes internos em produção. Conscientemente **fora do escopo**: autenticação/autorização, gestão de segredos em *vault* e *rate limiting* centralizado — em produção seriam responsabilidade de um **API Gateway/ingress** (coerente com o item 6), não de cada serviço.
 
 ---
 
@@ -340,10 +341,15 @@ Cada etapa abaixo é **um commit independente e coeso** (compila e, quando aplic
 **Commit 14 — `feat: observabilidade (Serilog, correlation id, OpenTelemetry)`**
 - Logging estruturado, middleware de correlation id (propagado em HTTP e fila), tracing OTel.
 
-**Commit 15 — `test: integração com Testcontainers (fluxo crítico + idempotência)`**
+**Commit 15 — `feat: rate limiting + ADR de postura de segurança`**
+- *Rate limiting* nativo (`AddRateLimiter`) nos endpoints de escrita das duas APIs; excesso responde `429 Too Many Requests` em `ProblemDetails`.
+- Concern transversal isolado na **borda da API** (driving adapter), sem tocar domínio/Application — par *inbound* da resiliência *outbound* (Polly).
+- Documenta a postura de segurança (ver ADR §9.7): o que existe, o que ficou fora e por quê (auth/secrets/rate limit centralizado seriam do API Gateway em produção).
+
+**Commit 16 — `test: integração com Testcontainers (fluxo crítico + idempotência)`**
 - Testes de repositório (índice único), fluxo ponta a ponta, reentrega de evento.
 
-**Commit 16 — `docs: README, diagrama e ADRs`**
+**Commit 17 — `docs: README, diagrama e ADRs`**
 - README completo: build/run (`docker-compose up --build`), portas, Swagger, exemplos de chamada, diagrama (Mermaid/imagem), seção de decisões (ADRs), trade-offs.
 
 > **Ordem de PRs/revisão sugerida:** Fase 0 → 1 → 2 → 3 → 4. Cada fase deixa o repositório em estado executável.
@@ -364,3 +370,4 @@ Cada etapa abaixo é **um commit independente e coeso** (compila e, quando aplic
 10. Reentregar o mesmo evento → sem efeito duplicado (Inbox/idempotência).
 11. `dotnet test` verde (unitários + integração com Testcontainers).
 12. Logs estruturados com correlation id atravessando os dois serviços.
+13. Exceder o limite de requisições nos endpoints de escrita → `429 Too Many Requests`.
