@@ -5,4 +5,15 @@
     <ProjectReference Include="..\PropostaService.Domain\PropostaService.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.9">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <!-- Alinha o EF Core em 10.0.9 (o Design puxa 10.0.9; o Npgsql, 10.0.4).
+         Sem este pin, consumidores recebem 10.0.4 e o build quebra (CS1705). -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.9" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.2" />
+  </ItemGroup>
+
 </Project>

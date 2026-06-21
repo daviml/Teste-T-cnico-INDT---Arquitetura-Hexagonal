@@ -30,3 +30,7 @@ trim_trailing_whitespace = false
 [*.{sh,yml,yaml}]
 end_of_line = lf
 indent_size = 2
+
+# Migrations são geradas pelo EF Core — não aplicar regras de estilo a elas.
+[**/Migrations/*.cs]
+generated_code = true
