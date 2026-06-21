@@ -54,6 +54,20 @@ services:
     networks:
       - indt-net
 
+  # UI web para inspecionar o PostgreSQL pelo navegador (conveniência de dev).
+  adminer:
+    image: adminer:5
+    container_name: indt-adminer
+    restart: unless-stopped
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    ports:
+      - "8080:8080"  # http://localhost:8080
+    depends_on:
+      - postgres
+    networks:
+      - indt-net
+
 volumes:
   postgres-data:
   rabbitmq-data:
