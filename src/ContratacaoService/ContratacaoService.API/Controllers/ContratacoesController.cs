@@ -2,6 +2,7 @@ using ContratacaoService.API.Infrastructure;
 using ContratacaoService.Application.Contratacoes.Dtos;
 using ContratacaoService.Application.Ports.Inbound;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace ContratacaoService.API.Controllers;
 
@@ -20,9 +21,11 @@ public sealed class ContratacoesController : ControllerBase
     }
 
     [HttpPost]
+    [EnableRateLimiting(RateLimitingExtensions.PoliticaEscrita)]
     [ProducesResponseType(typeof(ContratacaoResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+    [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
     public async Task<IActionResult> Contratar([FromBody] ContratarPropostaRequest request, CancellationToken ct)
     {
         var resultado = await _contratar.ExecutarAsync(request, ct);

@@ -35,6 +35,9 @@ try
     builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
     builder.Services.AddOpenApi();
 
+    // Rate limiting na borda (429 nos endpoints de escrita) — ver §9.7 / ADR 0001.
+    builder.Services.AddWriteRateLimiting();
+
     // --- Composição: infraestrutura (banco + gateway resiliente) + casos de uso ---
     var connectionString = builder.Configuration.GetConnectionString("Contratacoes")
         ?? throw new InvalidOperationException("Connection string 'Contratacoes' não configurada.");
@@ -62,6 +65,7 @@ try
     app.UseCorrelationId();
     app.UseSerilogRequestLogging();
     app.UseExceptionHandler();
+    app.UseRateLimiter();
 
     if (app.Environment.IsDevelopment())
     {

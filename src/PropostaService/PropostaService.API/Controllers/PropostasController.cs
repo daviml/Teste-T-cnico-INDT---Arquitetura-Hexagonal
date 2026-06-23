@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using PropostaService.API.Infrastructure;
 using PropostaService.Application.Common;
 using PropostaService.Application.Ports.Inbound;
@@ -29,8 +30,10 @@ public sealed class PropostasController : ControllerBase
     }
 
     [HttpPost]
+    [EnableRateLimiting(RateLimitingExtensions.PoliticaEscrita)]
     [ProducesResponseType(typeof(PropostaResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
     public async Task<IActionResult> Criar([FromBody] CriarPropostaRequest request, CancellationToken ct)
     {
         var resultado = await _criar.ExecutarAsync(request, ct);
@@ -78,9 +81,11 @@ public sealed class PropostasController : ControllerBase
     }
 
     [HttpPatch("{id:guid}/status")]
+    [EnableRateLimiting(RateLimitingExtensions.PoliticaEscrita)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
     public async Task<IActionResult> AlterarStatus(Guid id, [FromBody] AlterarStatusRequest request, CancellationToken ct)
     {
         var resultado = await _alterarStatus.ExecutarAsync(id, request, ct);

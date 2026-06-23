@@ -43,6 +43,9 @@ try
     // OpenAPI (documento consumido pela Swagger UI em desenvolvimento).
     builder.Services.AddOpenApi();
 
+    // Rate limiting na borda (429 nos endpoints de escrita) — ver §9.7 / ADR 0001.
+    builder.Services.AddWriteRateLimiting();
+
     // --- Composição: infraestrutura + casos de uso ---
     var connectionString = builder.Configuration.GetConnectionString("Propostas")
         ?? throw new InvalidOperationException("Connection string 'Propostas' não configurada.");
@@ -73,6 +76,7 @@ try
     app.UseCorrelationId();
     app.UseSerilogRequestLogging();
     app.UseExceptionHandler();
+    app.UseRateLimiter();
 
     if (app.Environment.IsDevelopment())
     {
