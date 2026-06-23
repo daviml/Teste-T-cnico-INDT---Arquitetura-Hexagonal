@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Contracts\Contracts.csproj" />
     <ProjectReference Include="..\ContratacaoService.Application\ContratacaoService.Application.csproj" />
     <ProjectReference Include="..\ContratacaoService.Domain\ContratacaoService.Domain.csproj" />
   </ItemGroup>
@@ -10,6 +11,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- MassTransit 8.x (Apache-2.0); v9 virou comercial, mesma postura do pin do FluentAssertions. -->
+    <PackageReference Include="MassTransit" Version="8.5.10" />
+    <PackageReference Include="MassTransit.EntityFrameworkCore" Version="8.5.10" />
+    <PackageReference Include="MassTransit.RabbitMQ" Version="8.5.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.9">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>

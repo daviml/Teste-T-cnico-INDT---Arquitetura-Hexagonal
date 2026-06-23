@@ -3,6 +3,7 @@ using ContratacaoService.API.Infrastructure;
 using ContratacaoService.Application.Contratacoes.UseCases;
 using ContratacaoService.Application.Ports.Inbound;
 using ContratacaoService.Infrastructure;
+using ContratacaoService.Infrastructure.Messaging;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,7 +21,12 @@ var connectionString = builder.Configuration.GetConnectionString("Contratacoes")
 var propostaBaseUrl = builder.Configuration["PropostaService:BaseUrl"]
     ?? throw new InvalidOperationException("'PropostaService:BaseUrl' não configurada.");
 
-builder.Services.AddContratacaoInfrastructure(connectionString, new Uri(propostaBaseUrl));
+var rabbitMq = new RabbitMqOptions(
+    builder.Configuration["RabbitMq:Host"] ?? throw new InvalidOperationException("'RabbitMq:Host' não configurado."),
+    builder.Configuration["RabbitMq:Username"] ?? throw new InvalidOperationException("'RabbitMq:Username' não configurado."),
+    builder.Configuration["RabbitMq:Password"] ?? throw new InvalidOperationException("'RabbitMq:Password' não configurado."));
+
+builder.Services.AddContratacaoInfrastructure(connectionString, new Uri(propostaBaseUrl), rabbitMq);
 
 builder.Services.AddScoped<IContratarProposta, ContratarPropostaHandler>();
 builder.Services.AddScoped<IObterContratacao, ObterContratacaoHandler>();
