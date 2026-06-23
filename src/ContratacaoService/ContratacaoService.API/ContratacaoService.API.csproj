@@ -12,4 +12,8 @@
     <ProjectReference Include="..\ContratacaoService.Infrastructure\ContratacaoService.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="ContratacaoService.Tests" />
+  </ItemGroup>
+
 </Project>

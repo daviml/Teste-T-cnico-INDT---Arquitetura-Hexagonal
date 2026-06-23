@@ -21,6 +21,7 @@
     <ProjectReference Include="..\..\src\ContratacaoService\ContratacaoService.Domain\ContratacaoService.Domain.csproj" />
     <ProjectReference Include="..\..\src\ContratacaoService\ContratacaoService.Application\ContratacaoService.Application.csproj" />
     <ProjectReference Include="..\..\src\ContratacaoService\ContratacaoService.Infrastructure\ContratacaoService.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\ContratacaoService\ContratacaoService.API\ContratacaoService.API.csproj" />
   </ItemGroup>
 
 </Project>
