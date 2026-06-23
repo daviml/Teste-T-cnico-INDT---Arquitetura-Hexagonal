@@ -1,8 +1,10 @@
+using Contracts;
 using Contracts.IntegrationEvents.V1;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using PropostaService.Application.Common;
 using PropostaService.Application.Ports.Inbound;
+using LogContext = Serilog.Context.LogContext;
 
 namespace PropostaService.API.Messaging;
 
@@ -36,18 +38,27 @@ public sealed partial class ContratacaoRealizadaConsumer : IConsumer<Contratacao
     {
         var propostaId = context.Message.PropostaId;
 
-        var resultado = await _marcarComoContratada.ExecutarAsync(propostaId, context.CancellationToken);
-        if (resultado.Falhou)
+        // Correlaciona os logs com a requisição original no ContratacaoService:
+        // o id viaja no header da mensagem (sobreviveu ao Outbox).
+        var correlationId = context.Headers.Get<string>(CorrelationHeader.Name)
+            ?? context.CorrelationId?.ToString()
+            ?? Guid.NewGuid().ToString();
+
+        using (LogContext.PushProperty("CorrelationId", correlationId))
         {
-            LogFalha(propostaId, resultado.Erro.Tipo, resultado.Erro.Mensagem);
+            var resultado = await _marcarComoContratada.ExecutarAsync(propostaId, context.CancellationToken);
+            if (resultado.Falhou)
+            {
+                LogFalha(propostaId, resultado.Erro.Tipo, resultado.Erro.Mensagem);
 
-            // Não engolimos a falha: lançar leva a mensagem à fila de erro do broker
-            // (sem perda silenciosa), para investigação/reprocessamento manual.
-            throw new InvalidOperationException(
-                $"Falha ao marcar proposta {propostaId} como contratada: {resultado.Erro.Mensagem}");
+                // Não engolimos a falha: lançar leva a mensagem à fila de erro do broker
+                // (sem perda silenciosa), para investigação/reprocessamento manual.
+                throw new InvalidOperationException(
+                    $"Falha ao marcar proposta {propostaId} como contratada: {resultado.Erro.Mensagem}");
+            }
+
+            LogContratada(propostaId, context.Message.NumeroApolice);
         }
-
-        LogContratada(propostaId, context.Message.NumeroApolice);
     }
 
     [LoggerMessage(

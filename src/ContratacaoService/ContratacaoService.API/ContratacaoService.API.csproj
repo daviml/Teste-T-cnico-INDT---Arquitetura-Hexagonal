@@ -2,10 +2,12 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.8" />
+    <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.2.2" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Contracts\Contracts.csproj" />
     <ProjectReference Include="..\ContratacaoService.Application\ContratacaoService.Application.csproj" />
     <ProjectReference Include="..\ContratacaoService.Infrastructure\ContratacaoService.Infrastructure.csproj" />
   </ItemGroup>

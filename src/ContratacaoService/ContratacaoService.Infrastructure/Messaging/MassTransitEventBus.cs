@@ -1,6 +1,8 @@
+using Contracts;
 using Contracts.IntegrationEvents.V1;
 using ContratacaoService.Application.Ports.Outbound;
 using ContratacaoService.Domain.Contratacoes.Events;
+using ContratacaoService.Infrastructure.Observability;
 using MassTransit;
 
 namespace ContratacaoService.Infrastructure.Messaging;
@@ -20,8 +22,13 @@ namespace ContratacaoService.Infrastructure.Messaging;
 internal sealed class MassTransitEventBus : IEventBus
 {
     private readonly IPublishEndpoint _publishEndpoint;
+    private readonly CorrelationContext _correlation;
 
-    public MassTransitEventBus(IPublishEndpoint publishEndpoint) => _publishEndpoint = publishEndpoint;
+    public MassTransitEventBus(IPublishEndpoint publishEndpoint, CorrelationContext correlation)
+    {
+        _publishEndpoint = publishEndpoint;
+        _correlation = correlation;
+    }
 
     public Task PublicarAsync(ContratacaoEfetuadaEvent evento, CancellationToken ct = default)
     {
@@ -34,6 +41,11 @@ internal sealed class MassTransitEventBus : IEventBus
             OcorridaEm = evento.OcorridoEm,
         };
 
-        return _publishEndpoint.Publish(integrationEvent, ct);
+        // Propaga o correlation id no header da mensagem (sobrevive ao Outbox) para
+        // que os logs do consumer no PropostaService correlacionem com esta requisição.
+        return _publishEndpoint.Publish(
+            integrationEvent,
+            ctx => ctx.Headers.Set(CorrelationHeader.Name, _correlation.CorrelationId),
+            ct);
     }
 }

@@ -1,6 +1,7 @@
 using ContratacaoService.Application.Ports.Outbound;
 using ContratacaoService.Infrastructure.Gateways;
 using ContratacaoService.Infrastructure.Messaging;
+using ContratacaoService.Infrastructure.Observability;
 using ContratacaoService.Infrastructure.Persistence;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +21,9 @@ public static class DependencyInjection
 
         services.AddScoped<IContratacaoRepository, ContratacaoRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        // Correlation id da requisição (preenchido pelo middleware da API).
+        services.AddScoped<CorrelationContext>();
 
         // Mensageria via Transactional Outbox: o adapter traduz o domain event e
         // publica; o Bus Outbox grava na transação do DbContext e entrega depois.
