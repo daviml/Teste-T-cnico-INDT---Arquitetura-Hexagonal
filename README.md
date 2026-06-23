@@ -94,9 +94,12 @@ sequenceDiagram
 **Pré-requisitos:** Docker + Docker Compose.
 
 ```bash
-cp .env.example .env          # credenciais de desenvolvimento (placeholders)
-docker-compose up --build     # sobe Postgres, RabbitMQ, Adminer e os 2 serviços
+docker compose up --build     # sobe Postgres, RabbitMQ, Adminer e os 2 serviços
 ```
+
+O compose já traz **defaults de desenvolvimento**, então sobe direto do clone — não
+é preciso criar `.env`. Para customizar credenciais/portas (ou rodar em produção),
+copie `cp .env.example .env` e ajuste; os valores do `.env` têm precedência.
 
 As migrations são aplicadas automaticamente no startup de cada serviço.
 
