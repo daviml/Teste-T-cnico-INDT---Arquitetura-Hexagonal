@@ -1,8 +1,8 @@
 name: indt-insurance
 
-# Infraestrutura local do desafio: PostgreSQL (um servidor, dois bancos
-# isolados por serviço) e RabbitMQ (com management UI). Os microserviços
-# em si serão adicionados em commits posteriores, quando tiverem Dockerfile.
+# Ambiente completo do desafio: PostgreSQL (um servidor, dois bancos isolados
+# por serviço), RabbitMQ (com management UI) e os dois microserviços.
+# `docker-compose up --build` sobe tudo.
 
 services:
   postgres:
@@ -65,6 +65,58 @@ services:
       - "8080:8080"  # http://localhost:8080
     depends_on:
       - postgres
+    networks:
+      - indt-net
+
+  proposta-service:
+    build:
+      context: .
+      dockerfile: src/PropostaService/PropostaService.API/Dockerfile
+    container_name: indt-proposta-service
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_HTTP_PORTS: 8080
+      # Hostnames internos da rede do compose (postgres/rabbitmq) sobrescrevem
+      # os valores de appsettings via convenção ConnectionStrings__/RabbitMq__.
+      ConnectionStrings__Propostas: "Host=postgres;Port=5432;Database=${PROPOSTA_DB_NAME};Username=${PROPOSTA_DB_USER};Password=${PROPOSTA_DB_PASSWORD}"
+      RabbitMq__Host: rabbitmq
+      RabbitMq__Username: ${RABBITMQ_DEFAULT_USER}
+      RabbitMq__Password: ${RABBITMQ_DEFAULT_PASS}
+    ports:
+      - "5237:8080"  # http://localhost:5237 (Swagger em /swagger)
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - indt-net
+
+  contratacao-service:
+    build:
+      context: .
+      dockerfile: src/ContratacaoService/ContratacaoService.API/Dockerfile
+    container_name: indt-contratacao-service
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_HTTP_PORTS: 8080
+      ConnectionStrings__Contratacoes: "Host=postgres;Port=5432;Database=${CONTRATACAO_DB_NAME};Username=${CONTRATACAO_DB_USER};Password=${CONTRATACAO_DB_PASSWORD}"
+      RabbitMq__Host: rabbitmq
+      RabbitMq__Username: ${RABBITMQ_DEFAULT_USER}
+      RabbitMq__Password: ${RABBITMQ_DEFAULT_PASS}
+      # Consulta síncrona à proposta usa o nome do serviço na rede interna.
+      PropostaService__BaseUrl: "http://proposta-service:8080"
+    ports:
+      - "5134:8080"  # http://localhost:5134 (Swagger em /swagger)
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      proposta-service:
+        condition: service_started
     networks:
       - indt-net
 

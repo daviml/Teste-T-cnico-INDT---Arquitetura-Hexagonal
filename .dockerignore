@@ -1,0 +1,11 @@
+# Artefatos de build e ambiente — fora do contexto de build das imagens.
+**/bin/
+**/obj/
+**/.vs/
+**/.vscode/
+**/.idea/
+.git/
+.github/
+**/*.user
+.env
+docs/
