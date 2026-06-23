@@ -1,3 +1,4 @@
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using PropostaService.Domain.Propostas;
 
@@ -18,5 +19,10 @@ public sealed class PropostaDbContext : DbContext
     {
         modelBuilder.HasSequence<long>(SequenciaNumeroProposta).StartsAt(1).IncrementsBy(1);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(PropostaDbContext).Assembly);
+
+        // Inbox/Outbox do MassTransit. Aqui o serviço usa o Inbox para deduplicar
+        // reentregas de ContratacaoRealizada (idempotência); o schema padrão (que
+        // inclui as tabelas de Outbox) é mapeado por consistência com a config.
+        modelBuilder.AddTransactionalOutboxEntities();
     }
 }

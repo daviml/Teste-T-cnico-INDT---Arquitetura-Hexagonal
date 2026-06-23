@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using PropostaService.API.Health;
 using PropostaService.API.Infrastructure;
+using PropostaService.API.Messaging;
 using PropostaService.Application.Ports.Inbound;
 using PropostaService.Application.Propostas.UseCases;
 using PropostaService.Infrastructure;
@@ -26,6 +27,14 @@ var connectionString = builder.Configuration.GetConnectionString("Propostas")
     ?? throw new InvalidOperationException("Connection string 'Propostas' não configurada.");
 
 builder.Services.AddPropostaInfrastructure(connectionString);
+
+// --- Mensageria: consumer idempotente (Inbox) de ContratacaoRealizada ---
+var rabbitMq = new RabbitMqOptions(
+    builder.Configuration["RabbitMq:Host"] ?? throw new InvalidOperationException("'RabbitMq:Host' não configurado."),
+    builder.Configuration["RabbitMq:Username"] ?? throw new InvalidOperationException("'RabbitMq:Username' não configurado."),
+    builder.Configuration["RabbitMq:Password"] ?? throw new InvalidOperationException("'RabbitMq:Password' não configurado."));
+
+builder.Services.AddPropostaMessaging(rabbitMq);
 
 builder.Services.AddScoped<ICriarProposta, CriarPropostaHandler>();
 builder.Services.AddScoped<IObterProposta, ObterPropostaHandler>();
